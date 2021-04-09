@@ -1,6 +1,6 @@
 import React from "react";
-import styled from "styled-components";
-import PropTypes from "prop-types";
+import styled from "styled-components/native";
+// import PropTypes from "prop-types";
 import IconBtn from "./IconBtn";
 import { icons } from "../icons";
 
@@ -15,22 +15,30 @@ const Container = styled.View`
 const Contents = styled.Text`
   flex: 1;
   font-size: 24px;
-  color: ${({ theme }) => theme.text};
+  color: ${({ theme, isCompleted }) => (isCompleted ? theme.done : theme.text)};
+  text-decoration-line: ${({ isCompleted }) =>
+    isCompleted ? "line-through" : "none"};
 `;
 
-const Task = ({ text }) => {
+const Task = ({ task, removeTask, toggleTask }) => {
   return (
     <Container>
-      <IconBtn icon={icons.unCheck} />
-      <Contents>{text}</Contents>
-      <IconBtn icon={icons.edit} />
-      <IconBtn icon={icons.delete} />
+      <IconBtn
+        icon={task.isCompleted ? icons.check : icons.uncheck}
+        task={task}
+        onPress={toggleTask}
+      />
+      <Contents isCompleted={task.isCompleted}>{task.text}</Contents>
+      {task.isCompleted || <IconBtn icon={icons.edit} />}
+      <IconBtn icon={icons.delete} task={task} onPress={removeTask} />
     </Container>
   );
 };
 
-Task.propTypes = {
-  text: PropTypes.string.isRequired,
-};
+// Task.propTypes = {
+//   task: PropTypes.object.isRequired,
+//   removeTask: PropTypes.func.isRequired,
+//   toggleTask: PropTypes.func.isRequired,
+// };
 
 export default Task;
