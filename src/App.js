@@ -34,6 +34,7 @@ export default function App() {
 
   const removeTask = (id) => {
     const currentTasks = Object.assign({}, tasks);
+    // 객체 복사 .assign(target,source) 가 들어간다 1번째 인자로 대상 , 2번째 인자로 출처 객체가 들어간다.
     delete currentTasks[id];
     setTasks(currentTasks);
   };
@@ -41,6 +42,12 @@ export default function App() {
   const toggleTask = (id) => {
     const currentTasks = Object.assign({}, tasks);
     currentTasks[id]["isCompleted"] = !currentTasks[id]["isCompleted"];
+    setTasks(currentTasks);
+  };
+
+  const updateTask = (task) => {
+    const currentTasks = Object.assign({}, tasks);
+    currentTasks[task.id] = task;
     setTasks(currentTasks);
   };
 
@@ -65,6 +72,7 @@ export default function App() {
                 task={task}
                 removeTask={removeTask}
                 toggleTask={toggleTask}
+                updateTask={updateTask}
               />
             ))}
         </List>

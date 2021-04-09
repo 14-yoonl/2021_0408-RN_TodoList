@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components/native";
 // import PropTypes from "prop-types";
 import IconBtn from "./IconBtn";
 import { icons } from "../icons";
-
+import InputBox from "./InputBox";
 const Container = styled.View`
   flex-direction: row;
   align-items: center;
@@ -20,8 +20,26 @@ const Contents = styled.Text`
     isCompleted ? "line-through" : "none"};
 `;
 
-const Task = ({ task, removeTask, toggleTask }) => {
-  return (
+const Task = ({ task, removeTask, toggleTask, updateTask }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [originText, setOriginText] = useState(task.text);
+
+  const _onSubmit = () => {
+    if (isEditing) {
+      const updateItem = Object.assign({}, task);
+      updateItem["originText"] = originText;
+      updateTask(updateItem);
+      setIsEditing(false);
+    }
+  };
+  return isEditing ? (
+    <InputBox
+      value={originText}
+      onChangeText={(originText) => setOriginText(originText)}
+      // 수정버튼을 눌렀을 때의 input value는 기존의 value 여야함 따라서 기존의 value를 state로 관리, 인용한다.
+      onSubmitEditing={_onSubmit}
+    />
+  ) : (
     <Container>
       <IconBtn
         icon={task.isCompleted ? icons.check : icons.uncheck}
@@ -29,7 +47,9 @@ const Task = ({ task, removeTask, toggleTask }) => {
         onPress={toggleTask}
       />
       <Contents isCompleted={task.isCompleted}>{task.text}</Contents>
-      {task.isCompleted || <IconBtn icon={icons.edit} />}
+      {task.isCompleted || (
+        <IconBtn icon={icons.edit} onPress={() => setIsEditing(true)} />
+      )}
       <IconBtn icon={icons.delete} task={task} onPress={removeTask} />
     </Container>
   );
