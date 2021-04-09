@@ -21,6 +21,7 @@ export default function InputBox({
   value,
   onChangeText,
   onSubmitEditing,
+  onBlur,
 }) {
   //기기환경의 맞는 값을 알려주는 Dimensions
   // const width = Dimensions.get("window").width;
@@ -37,6 +38,7 @@ export default function InputBox({
       value={value}
       onChangeText={onChangeText}
       onSubmitEditing={onSubmitEditing}
+      onBlur={onBlur}
     />
   );
 }

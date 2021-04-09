@@ -4,6 +4,8 @@ import styled, { ThemeProvider } from "styled-components/native";
 import { theme } from "./Theme";
 import TodoInput from "./components/InputBox";
 import Task from "./components/Task";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import AppLoading from "expo-app-loading";
 
 export default function App() {
   //현재 보여지고있는 디바이스의 width값을 가져옴
@@ -11,13 +13,23 @@ export default function App() {
 
   const [newTask, setNewTask] = useState("");
 
-  const tempData = {
-    1: { id: "1", text: "React-native", isCompleted: false },
-    2: { id: "2", text: "expo", isCompleted: false },
-    3: { id: "3", text: "React", isCompleted: false },
+  //local의 storage에 저장하는 것
+  const storageData = async (tasks) => {
+    try {
+      await AsyncStorage.setItem("tasks", JSON.stringify(tasks));
+      // 이 함수 내에서 setTask가 일어나기 때문에 아래에 모든 과정에서 storageData를 써주면 된다.
+      setTasks(tasks);
+    } catch (error) {}
   };
-  // 데이터를 선언하고 나서 hooks 사용하기 코드 위치 , 순서가 중요!!
-  const [tasks, setTasks] = useState(tempData);
+
+  const getData = async () => {
+    try {
+      const loadData = await AsyncStorage.getItem("tasks");
+      setTasks(JSON.parse(loadData || "{}"));
+    } catch (error) {}
+  };
+
+  const [tasks, setTasks] = useState({});
 
   const addTask = () => {
     if (newTask.length < 1) {
@@ -29,29 +41,30 @@ export default function App() {
       [ID]: { id: ID, text: newTask, isCompleted: false },
     };
     setNewTask("");
-    setTasks({ ...tasks, ...newTaskObject });
+    storageData({ ...tasks, ...newTaskObject });
   };
 
   const removeTask = (id) => {
     const currentTasks = Object.assign({}, tasks);
     // 객체 복사 .assign(target,source) 가 들어간다 1번째 인자로 대상 , 2번째 인자로 출처 객체가 들어간다.
     delete currentTasks[id];
-    setTasks(currentTasks);
+    storageData(currentTasks);
   };
 
   const toggleTask = (id) => {
     const currentTasks = Object.assign({}, tasks);
     currentTasks[id]["isCompleted"] = !currentTasks[id]["isCompleted"];
-    setTasks(currentTasks);
+    storageData(currentTasks);
   };
 
   const updateTask = (task) => {
     const currentTasks = Object.assign({}, tasks);
     currentTasks[task.id] = task;
-    setTasks(currentTasks);
+    storageData(currentTasks);
   };
 
-  return (
+  const [isReady, setIsReady] = useState(false);
+  return isReady ? (
     <ThemeProvider theme={theme}>
       {/* styled-componenet 적용한 ScorllView */}
       <Container>
@@ -62,6 +75,7 @@ export default function App() {
           value={newTask}
           onChangeText={(text) => setNewTask(text)}
           onSubmitEditing={addTask}
+          onBlur={() => setNewTask(" ")}
         />
         <List width={width}>
           {Object.values(tasks)
@@ -78,6 +92,12 @@ export default function App() {
         </List>
       </Container>
     </ThemeProvider>
+  ) : (
+    <AppLoading
+      startAsync={getData}
+      onFinish={() => setIsReady(true)}
+      onError={() => {}}
+    />
   );
 }
 

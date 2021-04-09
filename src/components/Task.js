@@ -26,9 +26,9 @@ const Task = ({ task, removeTask, toggleTask, updateTask }) => {
 
   const _onSubmit = () => {
     if (isEditing) {
-      const updateItem = Object.assign({}, task);
-      updateItem["originText"] = originText;
-      updateTask(updateItem);
+      const updatedItem = Object.assign({}, task);
+      updatedItem["text"] = originText;
+      updateTask(updatedItem);
       setIsEditing(false);
     }
   };
@@ -38,6 +38,10 @@ const Task = ({ task, removeTask, toggleTask, updateTask }) => {
       onChangeText={(originText) => setOriginText(originText)}
       // 수정버튼을 눌렀을 때의 input value는 기존의 value 여야함 따라서 기존의 value를 state로 관리, 인용한다.
       onSubmitEditing={_onSubmit}
+      onBlur={() => {
+        setOriginText(task.text);
+        setIsEditing(false);
+      }}
     />
   ) : (
     <Container>
